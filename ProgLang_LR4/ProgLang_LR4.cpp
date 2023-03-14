@@ -106,7 +106,10 @@ public:
     BitString& operator =(const BitString& two);
 
     void operation(BitString& two);
-    int& operator[](int num) const { return arr[num]; };
+    int& operator[](int num) const { 
+        if (num > -1 && num < real_size) {
+            return arr[num];
+        };
 };
 
 void menu(int op, array& Array1, array& Array2, decimal& Decimal1, decimal& Decimal2, BitString& BitString1, BitString& BitString2);
@@ -434,14 +437,15 @@ decimal decimal::operator -(decimal& two)
         return sum(two);
     }
 }
-decimal decimal::operator*(decimal& two)
+decimal decimal::operator *(decimal& two)
 {
     return mult(two);
 }
-int decimal::operator/(decimal two)
+int decimal::operator /(decimal two)
 {
     return div(two);
 }
+
 bool decimal::operator >(decimal two)
 {
     if (com(two) == true)
@@ -496,6 +500,23 @@ bool decimal::operator <(int num)
 
 }
 
+bool decimal::operator ==(int num) const
+{
+    for (int i = real_size - 1; i > -1; i--)
+    {
+        if (arr[i] != num % 10)
+        {
+            return false;
+        }
+
+
+        num / 10;
+    }
+    return true;
+
+
+}
+
 
 void decimal::arr_ent()
 {
@@ -517,13 +538,17 @@ void decimal::show()
         std::cout << "-";
     }
 
-    while (true)
+    for(i = 0; i < real_size; i++)
     {
         if (arr[i] != 0)
         {
             break;
         }
-        i++;
+        if (i == real_size - 1)
+        {
+            i = 0;
+            break;
+        }
     }
     for (i; i < real_size; i++)
     {
@@ -668,85 +693,101 @@ decimal decimal::mult(const decimal& two) const
     decimal rez(n1, 1, 0);
     decimal t1(n1, 0, 0);
     int t = 0;
-    if (sign < 0 || two.sign < 0)
+    if (two == 0) 
     {
-        rez.sign_change(-1);
-    }
-    for (int q = n - 1; q > -1; q--)
-    {
-        for (int i = n + 2, r = n - 1; r > -1; i--, r--)
-        {
-            if (two[q] == 1 || arr[r] == 1)
-            {
-                t = arr[r] * two[q];
-                t1[i] += t;
-                if (t1[i] > 9)
-                {
-                    t1[i] = t1[i] - 10;
-                    t1[i - 1] += 1;
-                }
-            }
-            else
-            {
-                t = arr[r] * two[q];
-                t1[i] += t % 10;
-                t1[i - 1] += t / 10;
-                if (t1[i] > 9)
-                {
-                    t1[i] = t1[i] - 10;
-                    t1[i - 1] += 1;
-                }
-
-            }
-        }
-        for (int i = n2, w = n + 2; w > -1; i--, w--)
-        {
-            rez[i] += t1[w];
-        }
-        for (int i = n1 - 1; i > -1; i--)
-        {
-            if (rez[i] > 9)
-            {
-                rez[i] = rez[i] - 10;
-                rez[i - 1] += 1;
-            }
-        }
-        n2--;
-        for (int i = 0; i < n1; i++)
-        {
-            t1[i] = 0;
-        }
-        t = 0;
-    }
-    return rez;
-}
-int decimal::div( decimal& two)
-{
-    int rez = 0;
-    bool sign1 = false;
-    bool sign2 = false;
-
-    sign = 1;
-    two.sign_change(1);
-    decimal temp(real_size, 1, 0);
-    temp = *this;
-    if (com_wo_sign(two) == false)
-    {
-        return  rez;
+        decimal zero(1, 1, 0);
+        return zero;
     }
     else
     {
-        do {
-            temp = temp - two;
-            if (temp > 0)
+        if (sign < 0 || two.sign < 0)
+        {
+            rez.sign_change(-1);
+        }
+        for (int q = n - 1; q > -1; q--)
+        {
+            for (int i = n + 2, r = n - 1; r > -1; i--, r--)
             {
-                rez++;
+                if (two[q] == 1 || arr[r] == 1)
+                {
+                    t = arr[r] * two[q];
+                    t1[i] += t;
+                    if (t1[i] > 9)
+                    {
+                        t1[i] = t1[i] - 10;
+                        t1[i - 1] += 1;
+                    }
+                }
+                else
+                {
+                    t = arr[r] * two[q];
+                    t1[i] += t % 10;
+                    t1[i - 1] += t / 10;
+                    if (t1[i] > 9)
+                    {
+                        t1[i] = t1[i] - 10;
+                        t1[i - 1] += 1;
+                    }
+
+                }
             }
-
-        } while (temp > 0);
-
-
+            for (int i = n2, w = n + 2; w > -1; i--, w--)
+            {
+                rez[i] += t1[w];
+            }
+            for (int i = n1 - 1; i > -1; i--)
+            {
+                if (rez[i] > 9)
+                {
+                    rez[i] = rez[i] - 10;
+                    rez[i - 1] += 1;
+                }
+            }
+            n2--;
+            for (int i = 0; i < n1; i++)
+            {
+                t1[i] = 0;
+            }
+            t = 0;
+        }
         return rez;
+    }
+}
+int decimal::div( decimal& two)
+{
+
+
+    if (two == 0)
+    {
+        throw "Division by 0";
+    }
+    else
+    {
+        int rez = 0;
+        bool sign1 = false;
+        bool sign2 = false;
+
+        sign = 1;
+        two.sign_change(1);
+        decimal temp = *this;
+        if (com_wo_sign(two) == false)
+        {
+            return  rez;
+        }
+        else
+        {
+            do {
+                temp = temp - two;
+                if (temp > 0)
+                {
+                    rez++;
+                }
+
+            } while (temp > 0);
+
+
+            return rez;
+        }
     }
 }
 
@@ -826,15 +867,20 @@ bool decimal::com_wo_sign(decimal& two) const
 
 void decimal::operation(decimal& two)
 {
-    std::cout << std::endl << name << "+" << two.get_name() << "  ";
-    (*this + two).show();
-    std::cout << std::endl << name << "-" << two.get_name() << "  ";
-    (*this - two).show();
-    std::cout << std::endl << name << "*" << two.get_name() << "  ";
-    (*this * two).show();
-    std::cout << std::endl << name << "/" << two.get_name() << "  "
-        << *this / two << std::endl;
-
+    try {
+        std::cout << std::endl << name << "+" << two.get_name() << "  ";
+        (*this + two).show();
+        std::cout << std::endl << name << "-" << two.get_name() << "  ";
+        (*this - two).show();
+        std::cout << std::endl << name << "*" << two.get_name() << "  ";
+        (*this * two).show();
+        std::cout << std::endl << name << "/" << two.get_name() << "  "
+            << *this / two << std::endl;
+    }
+    catch (const char* ex)
+    {
+        std::cout << std::endl << ex << std::endl;
+    }
 }
 
 
