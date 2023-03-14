@@ -79,6 +79,7 @@ public:
     bool operator >(int num);
     bool operator <(decimal two);
     bool operator <(int num);
+    bool operator ==(int num) const;
     int& operator[](int num) const { return arr[num]; };
 };
 
@@ -106,10 +107,11 @@ public:
     BitString& operator =(const BitString& two);
 
     void operation(BitString& two);
-    int& operator[](int num) const { 
+    int& operator[](int num) const {
         if (num > -1 && num < real_size) {
             return arr[num];
         };
+    };
 };
 
 void menu(int op, array& Array1, array& Array2, decimal& Decimal1, decimal& Decimal2, BitString& BitString1, BitString& BitString2);
